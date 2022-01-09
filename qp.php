@@ -3,7 +3,7 @@ header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Origin: https://boards.4chan.org');
 header('Access-Control-Allow-Headers: x-requested-with, if-modified-since');
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') exit;
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') exit;
 
 require_once('require/config.php');
 require_once('require/rate_limiter.php');
