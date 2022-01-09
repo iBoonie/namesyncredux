@@ -20,7 +20,7 @@ if (is_null($ip)) exit_error('Invalid IP');
 if (!check_within_rate_limit($board, $ip, GET_MAX_HITS, GET_TIME, 1))
 {
     http_response_code(429);
-    exit;
+    exit('[]');
 }
 
 try {
@@ -39,8 +39,7 @@ $fetch = $stmt->fetchAll();
 
 if (empty($fetch))
 {
-    http_response_code(204);
-    exit;
+    exit('[]');
 }
 
 $build = array();

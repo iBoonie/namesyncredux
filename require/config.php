@@ -8,8 +8,8 @@ define('DB_PASSWORD', '');
 define('SECURE_TRIP_SALT', 'please-change-me'); // Salt used for encrypting secure trips
 
 // Submit post
-define('SUBMIT_MAX_HITS', 2); // This many requests allowed within SUBMIT_TIME (per board)
-define('SUBMIT_TIME', 32); // Seconds
+define('SUBMIT_MAX_HITS', 5); // This many requests allowed within SUBMIT_TIME (per board)
+define('SUBMIT_TIME', 60); // Seconds
 
 // Get posts
 define('GET_MAX_HITS', 150);

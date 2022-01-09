@@ -24,8 +24,9 @@ if (is_null($ip))   exit_error('Invalid IP');
 
 if (!check_within_rate_limit($board, $ip, SUBMIT_MAX_HITS, SUBMIT_TIME, 1))
 {
+    error_log("FloodProtection " . $board);
     http_response_code(429);
-    exit;
+    exit('[]');
 }
 
 try {

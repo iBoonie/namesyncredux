@@ -14,7 +14,7 @@ if (is_null($ip)) exit('Invalid IP');
 if (!check_within_rate_limit('rm', $ip, REMOVE_MAX_HITS, REMOVE_TIME, 1))
 {
     http_response_code(429);
-    exit;
+    exit('[]');
 }
 
 try {
