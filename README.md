@@ -3,11 +3,11 @@
 - All boards which are forced Anonymous work out of the box and update automatically
 - Secure tripcodes work
 - Tripcode passwords are **NOT** stored
-- Old post data is automatically deleted every 24 hours
+- Post data older than 7 days is automatically deleted every 24 hours
 - Configurable rate limiting
 
 ## Installation
-- Import the database 'required/database.sql'
+- Import the database located in `/required/database.sql`
 - Turn on the **Event scheduler** or old post data will not get deleted
 - Add the following Cronjobs
 - `*/10 * * * * php /path/to/namesync/required/CRON_GENERATE_BOARD_CACHE.php`
