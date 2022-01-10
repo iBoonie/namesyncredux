@@ -31,7 +31,7 @@ try {
     throw new Exception($ex->getMessage());
 }
 
-$stmt = $pdo->prepare("SELECT board, post, name, trip, subject, email FROM data WHERE board=:board AND thread=:thread");
+$stmt = $pdo->prepare("SELECT board, post, name, color, hue, trip, subject, email FROM data WHERE board=:board AND thread=:thread");
 $stmt->bindValue(':board', $board, PDO::PARAM_STR);
 $stmt->bindValue(':thread', $thread, PDO::PARAM_INT);
 $stmt->execute();
@@ -46,7 +46,7 @@ $build = array();
 foreach($fetch as $row)
 {
     $subArr = array();
-    foreach(array('board' => 'b', 'post' => 'p', 'name' => 'n', 'trip' => 't', 'subject'=> 's', 'email' => 'e') as $key => $key_min)
+    foreach(array('board' => 'b', 'post' => 'p', 'name' => 'n', 'color' => 'ca', 'hue' => 'ch', 'trip' => 't', 'subject'=> 's', 'email' => 'e') as $key => $key_min)
     {
         if(is_null($row[$key]))
         {
@@ -61,3 +61,9 @@ foreach($fetch as $row)
 }
 
 echo json_encode($build);
+
+function exit_error($output)
+{
+    http_response_code(406);
+    exit($output);
+}

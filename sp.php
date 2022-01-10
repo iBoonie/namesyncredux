@@ -14,6 +14,8 @@ $thread  = filter_input(INPUT_POST, 't', FILTER_VALIDATE_INT, array('options' =>
 $name    = filter_input(INPUT_POST, 'n', FILTER_CALLBACK, array('options' => 'validate_strings'));
 $subject = filter_input(INPUT_POST, 's', FILTER_CALLBACK, array('options' => 'validate_strings'));
 $email   = filter_input(INPUT_POST, 'e', FILTER_CALLBACK, array('options' => 'validate_strings'));
+$color   = filter_input(INPUT_POST, 'ca', FILTER_VALIDATE_INT, array('options' => array('default' => null, 'min_range' => 1, 'max_range' => 100)));
+$hue     = filter_input(INPUT_POST, 'ch', FILTER_VALIDATE_INT, array('options' => array('default' => null, 'min_range' => 1, 'max_range' => 360)));
 $ip      = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP, FILTER_NULL_ON_FAILURE|FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE);
 
 if (!$board)        exit_error('Invalid Board');
@@ -52,8 +54,8 @@ if (!empty($fetch) && $fetch->time > 0)
 }
 
 $stmt = $pdo->prepare("
-    INSERT IGNORE INTO data (board, post, thread, name, trip, subject, email, ip, uid, time)
-    VALUES (:board, :post, :thread, :name, :trip, :subject, :email, :ip, :uid, :time)
+    INSERT IGNORE INTO data (board, post, thread, name, color, hue, trip, subject, email, ip, uid, time)
+    VALUES (:board, :post, :thread, :name, :color, :hue, :trip, :subject, :email, :ip, :uid, :time)
 ");
 
 list($name, $trip) = trip($name);
@@ -62,6 +64,8 @@ $stmt->bindValue(':board', $board, PDO::PARAM_STR);
 $stmt->bindValue(':post', $post, PDO::PARAM_INT);
 $stmt->bindValue(':thread', $thread, PDO::PARAM_INT);
 $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+$stmt->bindValue(':color', $color, PDO::PARAM_INT);
+$stmt->bindValue(':hue', $hue, PDO::PARAM_INT);
 $stmt->bindValue(':trip', $trip, PDO::PARAM_STR);
 $stmt->bindValue(':subject', $subject, PDO::PARAM_STR);
 $stmt->bindValue(':email', $email, PDO::PARAM_STR);
