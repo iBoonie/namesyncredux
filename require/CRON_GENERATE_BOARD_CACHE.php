@@ -1,9 +1,12 @@
 <?php
-require_once('func.curl.php');
-require_once('func.cache.php');
+require_once('config.php');
+require_once('FileCacher.php');
+require_once('inc.func.php');
 
-$file = implode('|', build());
-set_cache($file);
+$cache = new FileCacher(CACHE_FOLDER);
+
+$data = implode('|', build());
+$cache->set('boards', $data);
 
 function build()
 {

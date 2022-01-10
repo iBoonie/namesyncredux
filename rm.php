@@ -5,13 +5,15 @@ header('Access-Control-Allow-Headers: x-requested-with, if-modified-since');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') exit;
 
 require_once('require/config.php');
-require_once('require/rate_limiter.php');
+require_once('require/FileCacher.php');
+require_once('require/inc.func.php');
 
 $ip = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP, FILTER_NULL_ON_FAILURE|FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE);
 
 if (is_null($ip)) exit('Invalid IP');
 
-if (!check_within_rate_limit('rm', $ip, REMOVE_MAX_HITS, REMOVE_TIME, 1))
+$floodID = 'rm-' . md5($ip);
+if (is_flooding($floodID, REMOVE_MAX_HITS, REMOVE_TIME))
 {
     http_response_code(429);
     exit('[]');

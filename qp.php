@@ -6,10 +6,12 @@ header('Access-Control-Allow-Headers: x-requested-with, if-modified-since');
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') exit;
 
 require_once('require/config.php');
-require_once('require/rate_limiter.php');
-require_once('require/func.cache.php');
+require_once('require/FileCacher.php');
+require_once('require/inc.func.php');
 
-$board  = filter_input(INPUT_GET, 'b', FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => '/^(' . get_cache('require/board.cache') . ')$/')));
+$cache = new FileCacher(CACHE_FOLDER);
+
+$board  = filter_input(INPUT_GET, 'b', FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => '/^(' . $cache->get('boards', 'b') . ')$/')));
 $thread = filter_input(INPUT_GET, 't', FILTER_VALIDATE_INT, array('options' => array('min_range' => 1, 'max_range' => PHP_INT_MAX)));
 $ip     = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP, FILTER_NULL_ON_FAILURE|FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE);
 
@@ -17,7 +19,8 @@ if (!$board)      exit_error('Invalid Board');
 if (!$thread)     exit_error('Invalid Thread');
 if (is_null($ip)) exit_error('Invalid IP');
 
-if (!check_within_rate_limit($board, $ip, GET_MAX_HITS, GET_TIME, 1))
+$floodID = "$board-" . md5($ip);
+if (is_flooding($floodID, GET_MAX_HITS, GET_TIME))
 {
     http_response_code(429);
     exit('[]');
@@ -61,9 +64,3 @@ foreach($fetch as $row)
 }
 
 echo json_encode($build);
-
-function exit_error($output)
-{
-    http_response_code(406);
-    exit($output);
-}

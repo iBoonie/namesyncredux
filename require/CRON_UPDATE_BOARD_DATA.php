@@ -1,7 +1,7 @@
 <?php
 require_once('config.php');
-require_once('func.curl.php');
-require_once('func.cache.php');
+require_once('FileCacher.php');
+require_once('inc.func.php');
 
 try {
     $pdo = new PDO('mysql:host=' . DB_HOST . ';charset=utf8mb4;dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
@@ -10,10 +10,12 @@ try {
     throw new Exception($ex->getMessage());
 }
 
-$cache = get_cache();
-$cache = explode('|', $cache);
+$cache = new FileCacher(CACHE_FOLDER);
 
-foreach ($cache as $board)
+$boards = $cache->get('boards', 'b'); // Default to /b/ if file doesnt exist
+$boards = explode('|', $boards);
+
+foreach ($boards as $board)
 {
     $file = curl_url("https://a.4cdn.org/$board/1.json");
 

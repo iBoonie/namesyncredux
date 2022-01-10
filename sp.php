@@ -5,10 +5,12 @@ header('Access-Control-Allow-Headers: x-requested-with, if-modified-since');
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') exit('[]');
 
 require_once('require/config.php');
-require_once('require/rate_limiter.php');
-require_once('require/func.cache.php');
+require_once('require/FileCacher.php');
+require_once('require/inc.func.php');
 
-$board   = filter_input(INPUT_POST, 'b', FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => '/^(' . get_cache('require/board.cache') . ')$/')));
+$cache = new FileCacher(CACHE_FOLDER);
+
+$board   = filter_input(INPUT_POST, 'b', FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => '/^(' . $cache->get('boards', 'b') . ')$/')));
 $post    = filter_input(INPUT_POST, 'p', FILTER_VALIDATE_INT, array('options' => array('min_range' => 1, 'max_range' => PHP_INT_MAX)));
 $thread  = filter_input(INPUT_POST, 't', FILTER_VALIDATE_INT, array('options' => array('min_range' => 1, 'max_range' => PHP_INT_MAX)));
 $name    = filter_input(INPUT_POST, 'n', FILTER_CALLBACK, array('options' => 'validate_strings'));
@@ -24,9 +26,9 @@ if (!$thread)       exit_error('Invalid Thread');
 if (is_null($name)) exit_error('Invalid Name');
 if (is_null($ip))   exit_error('Invalid IP');
 
-if (!check_within_rate_limit($board, $ip, SUBMIT_MAX_HITS, SUBMIT_TIME, 1))
+$floodID = "$board-" . md5($ip);
+if (is_flooding($floodID, SUBMIT_MAX_HITS, SUBMIT_TIME))
 {
-    error_log("FloodProtection " . $board);
     http_response_code(429);
     exit('[]');
 }
@@ -73,12 +75,6 @@ $stmt->bindValue(':ip', md5($ip), PDO::PARAM_STR);
 $stmt->bindValue(':uid', $uid, PDO::PARAM_INT);
 $stmt->bindValue(':time', time(), PDO::PARAM_INT);
 $stmt->execute();
-
-function exit_error($output)
-{
-    http_response_code(406);
-    exit($output);
-}
 
 function validate_strings($str)
 {
