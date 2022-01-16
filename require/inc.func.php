@@ -27,29 +27,38 @@ function is_flooding($id, $_hits, $_time)
 {
     global $cache;
 
-    if (is_null($cache->get($id)))
+    $hitCache = $cache->get($id);
+    $default = array('time' => time(), 'hit' => 1);
+
+    if (is_null($hitCache))
     {
-        $data = array('time' => time(), 'limit' => 1);
-        $cache->set($id, $data);
+        $cache->set($id, $default);
     } else {
-        $time = $cache->get($id)['time'];
-        $limit = $cache->get($id)['limit'];
+
+        // I should fix this upstream...
+        // Sometimes the output does not get unserialized
+        if (!is_array($hitCache))
+        {
+            $hitCache = unserialize($hitCache);
+        }
+
+        $time = $hitCache['time'];
+        $hit = $hitCache['hit'];
 
         if ((time() - $time) > $_time)
         {
-            $data = array('time' => time(), 'limit' => 1);
-            $cache->set($id, $data);
+            $cache->set($id, $default);
             return false;
         }
 
-        if ($limit >= $_hits)
+        if ($hit >= $_hits)
         {
             return true;
         }
 
-        $limit += 1;
+        $hit += 1;
 
-        $data = array('time' => $time, 'limit' => $limit);
+        $data = array('time' => $time, 'hit' => $hit);
         $cache->set($id, $data);
     }
 

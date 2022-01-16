@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS `data` (
   `ip` VARCHAR(32) NOT NULL,
   `uid` INT UNSIGNED NOT NULL,
   `time` INT UNSIGNED NOT NULL,
+  INDEX (`board`),
   INDEX (`thread`),
   INDEX (`ip`),
   PRIMARY KEY (`uid`)

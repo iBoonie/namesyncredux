@@ -26,7 +26,7 @@ if (!$thread)       exit_error('Invalid Thread');
 if (is_null($name)) exit_error('Invalid Name');
 if (is_null($ip))   exit_error('Invalid IP');
 
-$floodID = "$board-" . md5($ip);
+$floodID = "$board-sp-" . md5($ip);
 if (is_flooding($floodID, SUBMIT_MAX_HITS, SUBMIT_TIME))
 {
     http_response_code(429);

@@ -19,7 +19,7 @@ if (!$board)      exit_error('Invalid Board');
 if (!$thread)     exit_error('Invalid Thread');
 if (is_null($ip)) exit_error('Invalid IP');
 
-$floodID = "$board-" . md5($ip);
+$floodID = "$board-qp-" . md5($ip);
 if (is_flooding($floodID, GET_MAX_HITS, GET_TIME))
 {
     http_response_code(429);
