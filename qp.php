@@ -3,7 +3,12 @@ header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Origin: https://boards.4chan.org');
 header('Access-Control-Allow-Headers: x-requested-with, if-modified-since');
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') exit;
+
+$method     = filter_input(INPUT_SERVER, 'REQUEST_METHOD') == 'GET';
+$origin     = filter_input(INPUT_SERVER, 'HTTP_ORIGIN') == 'https://boards.4chan.org';
+$request    = substr(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH'), 0, 8) == 'NameSync';
+
+if (!$method || !$origin || !request) exit;
 
 require_once('require/config.php');
 require_once('require/FileCacher.php');

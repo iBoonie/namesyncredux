@@ -2,7 +2,12 @@
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Origin: https://boards.4chan.org');
 header('Access-Control-Allow-Headers: x-requested-with, if-modified-since');
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') exit('[]');
+
+$method     = filter_input(INPUT_SERVER, 'REQUEST_METHOD') == 'POST';
+$origin     = filter_input(INPUT_SERVER, 'HTTP_ORIGIN') == 'https://boards.4chan.org';
+$request    = substr(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH'), 0, 8) == 'NameSync';
+
+if (!$method || !$origin || !request) exit('[]');
 
 require_once('require/config.php');
 require_once('require/FileCacher.php');
@@ -23,8 +28,11 @@ $ip      = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP, FILTER_
 if (!$board)        exit_error('Invalid Board');
 if (!$post)         exit_error('Invalid Post');
 if (!$thread)       exit_error('Invalid Thread');
-if (is_null($name)) exit_error('Invalid Name');
 if (is_null($ip))   exit_error('Invalid IP');
+if (is_null($name) && is_null($subject) && is_null($email))
+{
+    exit_error('Invalid Name/Subject/Email');
+}
 
 $floodID = "$board-sp-" . md5($ip);
 if (is_flooding($floodID, SUBMIT_MAX_HITS, SUBMIT_TIME))
