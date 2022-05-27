@@ -1,19 +1,21 @@
 <?php
-header('Access-Control-Allow-Credentials: true');
-header('Access-Control-Allow-Origin: https://boards.4chan.org');
-header('Access-Control-Allow-Headers: x-requested-with, if-modified-since');
-
-$method     = filter_input(INPUT_SERVER, 'REQUEST_METHOD') == 'POST';
-$origin     = filter_input(INPUT_SERVER, 'HTTP_ORIGIN') == 'https://boards.4chan.org';
-$request    = substr(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH'), 0, 8) == 'NameSync';
-
-if (!$method || !$origin || !$request) exit('[]');
-
 require_once('require/config.php');
 require_once('require/FileCacher.php');
 require_once('require/inc.func.php');
 
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Credentials: true');
+header('Access-Control-Allow-Origin: https://boards.4chan.org');
+header('Access-Control-Allow-Headers: x-requested-with, if-modified-since');
+
+// Frensync uses this to see if the api is up
+if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'OPTIONS') exit('[]');
+
 $cache = new FileCacher(CACHE_FOLDER);
+
+$method  = filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST';
+$referer = filter_input(INPUT_SERVER, 'HTTP_REFERER') === 'https://boards.4chan.org/';
+$request = substr(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH'), 0, 8) === 'NameSync';
 
 $board   = filter_input(INPUT_POST, 'b', FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => '/^(' . $cache->get('boards', 'b') . ')$/')));
 $post    = filter_input(INPUT_POST, 'p', FILTER_VALIDATE_INT, array('options' => array('min_range' => 1, 'max_range' => PHP_INT_MAX)));
@@ -25,6 +27,13 @@ $color   = filter_input(INPUT_POST, 'ca', FILTER_VALIDATE_INT, array('options' =
 $hue     = filter_input(INPUT_POST, 'ch', FILTER_VALIDATE_INT, array('options' => array('default' => null, 'min_range' => 1, 'max_range' => 360)));
 $ip      = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP, FILTER_NULL_ON_FAILURE|FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE);
 
+ini_set("log_errors", 1);
+error_log('method: ' . $method . ' referer: ' . $referer . ' request: ' . $request);
+
+
+if (!$method)       exit_error('Invalid Request Method');
+//if (!$referer)      exit_error('Invalid Referer');
+//if (!$request)      exit_error('Invalid Requested With');
 if (!$board)        exit_error('Invalid Board');
 if (!$post)         exit_error('Invalid Post');
 if (!$thread)       exit_error('Invalid Thread');
@@ -37,8 +46,7 @@ if (is_null($name) && is_null($subject) && is_null($email))
 $floodID = "$board-sp-" . md5($ip);
 if (is_flooding($floodID, SUBMIT_MAX_HITS, SUBMIT_TIME))
 {
-    http_response_code(429);
-    exit('[]');
+    exit(http_response_code(429));
 }
 
 try {
