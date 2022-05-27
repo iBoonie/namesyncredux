@@ -8,7 +8,7 @@ $method     = filter_input(INPUT_SERVER, 'REQUEST_METHOD') == 'GET';
 $origin     = filter_input(INPUT_SERVER, 'HTTP_ORIGIN') == 'https://boards.4chan.org';
 $request    = substr(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH'), 0, 8) == 'NameSync';
 
-if (!$method || !$origin || !request) exit;
+if (!$method || !$origin || !$request) exit;
 
 require_once('require/config.php');
 require_once('require/FileCacher.php');
