@@ -14,7 +14,7 @@ if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'OPTIONS') exit('[]');
 $cache = new FileCacher(CACHE_FOLDER);
 
 $method  = filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST';
-$referer = filter_input(INPUT_SERVER, 'HTTP_REFERER') === 'https://boards.4chan.org/';
+$origin  = rtrim(filter_input(INPUT_SERVER, 'HTTP_ORIGIN'), '/') === 'https://boards.4chan.org';
 $request = substr(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH'), 0, 8) === 'NameSync';
 
 $board   = filter_input(INPUT_POST, 'b', FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => '/^(' . $cache->get('boards', 'b') . ')$/')));
@@ -27,13 +27,11 @@ $color   = filter_input(INPUT_POST, 'ca', FILTER_VALIDATE_INT, array('options' =
 $hue     = filter_input(INPUT_POST, 'ch', FILTER_VALIDATE_INT, array('options' => array('default' => null, 'min_range' => 1, 'max_range' => 360)));
 $ip      = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP, FILTER_NULL_ON_FAILURE|FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE);
 
-ini_set("log_errors", 1);
-error_log('method: ' . $method . ' referer: ' . $referer . ' request: ' . $request);
+error_log('origin: ' . filter_input(INPUT_SERVER, 'HTTP_ORIGIN') . ' request: ' . filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH'));
 
-
+if (!$origin)       exit_error('Invalid Origin');
+if (!$request)      exit_error('Invalid Requested With');
 if (!$method)       exit_error('Invalid Request Method');
-//if (!$referer)      exit_error('Invalid Referer');
-//if (!$request)      exit_error('Invalid Requested With');
 if (!$board)        exit_error('Invalid Board');
 if (!$post)         exit_error('Invalid Post');
 if (!$thread)       exit_error('Invalid Thread');
@@ -53,7 +51,6 @@ try {
     $pdo = new PDO('mysql:host=' . DB_HOST . ';charset=utf8mb4;dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (Exception $ex) {
-    echo 'Database error!';
     throw new Exception($ex->getMessage());
 }
 
