@@ -7,7 +7,7 @@ header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Origin: https://boards.4chan.org');
 header('Access-Control-Allow-Headers: x-requested-with, if-modified-since');
 
-// Frensync uses this to see if the api is up
+// CORS headers are received during OPTIONS requests
 if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'OPTIONS') exit('[]');
 
 $ip = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP, FILTER_NULL_ON_FAILURE|FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE);

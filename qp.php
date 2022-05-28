@@ -8,7 +8,7 @@ header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Origin: https://boards.4chan.org');
 header('Access-Control-Allow-Headers: x-requested-with, if-modified-since');
 
-// Frensync uses this to see if the api is up
+// CORS headers are received during OPTIONS requests
 if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'OPTIONS') exit('[]');
 
 $cache = new FileCacher(CACHE_FOLDER);
@@ -77,7 +77,7 @@ if (preg_match('/,/', $thread))
 }
 else
 {
-    $stmt = $pdo->prepare("SELECT board, post, name, color, hue, trip, subject, email FROM data WHERE board=:board AND thread=:thread");
+    $stmt = $pdo->prepare("SELECT board, post, name, color, hue, trip, subject, email, time FROM data WHERE board=:board AND thread=:thread");
     $stmt->bindValue(':board', $board, PDO::PARAM_STR);
     $stmt->bindValue(':thread', $thread, PDO::PARAM_INT);
     $stmt->execute();
@@ -92,7 +92,7 @@ else
     foreach($fetch as $row)
     {
         $subArr = array();
-        foreach(array('board' => 'b', 'post' => 'p', 'name' => 'n', 'color' => 'ca', 'hue' => 'ch', 'trip' => 't', 'subject'=> 's', 'email' => 'e') as $key => $key_min)
+        foreach(array('board' => 'b', 'post' => 'p', 'name' => 'n', 'color' => 'ca', 'hue' => 'ch', 'trip' => 't', 'subject' => 's', 'email' => 'e', 'time' => 'time') as $key => $key_min)
         {
             if(is_null($row[$key]))
             {
