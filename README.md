@@ -1,3 +1,6 @@
+# Deprecated
+Please use https://github.com/iBoonie/namesync-redux-flatfile instead.
+
 # NamesyncRedux
 - MIT implementation of Namesync's server
 - All boards which are forced Anonymous work out of the box and update automatically
